@@ -11,4 +11,4 @@
 
 ## Resultados
 
-Los resultados están en el archivo [```BO_log.txt```](HT3990-OV/BO_log.txt) , el modelo final seleccionado fue el de la iteración **39** cuyo archivo ([```z399_039.csv``` ](HT3990-OV/z399_039.csv)) CSV de salida (junto a los demás) se incluye en la carpeta [```HT3990-OV```](HT3990-OV)
+Los resultados están en el archivo [```BO_log.txt```](HT3990-OV/BO_log.txt) , el modelo final seleccionado fue el de la iteración **30** cuyo archivo ([```z399_030.csv``` ](HT3990-OV/z399_030.csv)) CSV de salida (junto a los demás) se incluye en la carpeta [```HT3990-OV```](HT3990-OV)

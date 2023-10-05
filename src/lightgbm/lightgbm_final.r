@@ -25,11 +25,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 501593
 
 # BO 3lag 46
-PARAM$finalmodel$num_iterations <- 2902
-PARAM$finalmodel$learning_rate <- 0.036391
-PARAM$finalmodel$feature_fraction <- 0.880674
-PARAM$finalmodel$min_data_in_leaf <- 1082
-PARAM$finalmodel$num_leaves <- 591
+PARAM$finalmodel$num_iterations <- 834
+PARAM$finalmodel$learning_rate <- 0.01009
+PARAM$finalmodel$feature_fraction <- 0.950907
+PARAM$finalmodel$min_data_in_leaf <- 598
+PARAM$finalmodel$num_leaves <- 499
 
 
 PARAM$finalmodel$max_bin <- 31

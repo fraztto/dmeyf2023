@@ -214,17 +214,17 @@ EstimarGanancia_lightgbm <- function(x) {
 
   # el lenguaje R permite asignarle ATRIBUTOS a cualquier variable
   # esta es la forma de devolver un parametro extra
-  attr(ganancia_normalizada, "extras") <-
+  attr(ganancia, "extras") <-
     list("num_iterations" = modelocv$best_iter)
 
   # logueo
   xx <- param_completo
-  xx$ganancia <- ganancia_normalizada # le agrego la ganancia
+  xx$ganancia <- ganancia # le agrego la ganancia
   xx$ganancia_test <- ganancia_test
   xx$iteracion <- GLOBAL_iteracion
   loguear(xx, arch = klog)
 
-  return(ganancia_normalizada)
+  return(ganancia)
 }
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------

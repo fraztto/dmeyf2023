@@ -187,7 +187,7 @@ EstimarGanancia_lightgbm <- function(x) {
   )
 
   # obtengo la ganancia
-  ganancia_test <- fganancia_logistic(predict_test, dtest$weight)
+  ganancia_test <- fganancia_logistic(predict_test, dtest$weight)$value
 
   # asigno el mejor num_iterations
   param_completo$num_iterations <- modelocv$best_iter

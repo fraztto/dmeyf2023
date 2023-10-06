@@ -35,7 +35,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-SIMPLE-13m-04u-3lag-v4-t5"
+PARAM$experimento <- "BO-SIMPLE-13m-04u-3lag-v4-t5-hp2"
 
 PARAM$input$dataset <- "./datasets/competencia_02_3lags.csv.gz"
 
@@ -62,8 +62,8 @@ hs <- makeParamSet(
   makeNumericParam("learning_rate", lower = 0.01, upper = 0.3),
   makeNumericParam("feature_fraction", lower = 0.2, upper = 1.0),
   makeIntegerParam("min_data_in_leaf", lower = 1L, upper = 8000L),
-  makeIntegerParam("num_leaves", lower = 16L, upper = 1024L),
-  makeIntegerParam("envios", lower = 5000L, upper = 15000L)
+  makeIntegerParam("num_leaves", lower = 512L, upper = 1520L),
+  makeIntegerParam("envios", lower = 14000L, upper = 20000L)
 )
 
 #------------------------------------------------------------------------------

@@ -287,7 +287,7 @@ setwd(paste0("./exp/", PARAM$experimento, "/"))
 kbayesiana <- paste0(PARAM$experimento, ".RDATA")
 klog <- paste0(PARAM$experimento, ".txt")
 
-
+dataset <- dataset[order(numero_de_cliente, foto_mes), ]
 
 # Catastrophe Analysis  -------------------------------------------------------
 # deben ir cosas de este estilo

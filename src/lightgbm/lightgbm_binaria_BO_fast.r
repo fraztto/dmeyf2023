@@ -321,11 +321,11 @@ for (i in 1:6) {
   # lag_delta
   if (i == 1) {
     anscols <- paste("lag_delta", i, numeric_cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, NA, "lag"), .SDcols=numeric_cols]
+    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols]
   }
   else if (i < 6) {
     anscols = paste("lag_delta", numeric_cols, sep="_")
-    dataset[, (anscols) := shift(.SD, i, NA, "lag") - shift(.SD, i+1, NA, "lag"), .SDcols=numeric_cols]
+    dataset[, (anscols) := shift(.SD, i, 0, "lag") - shift(.SD, i + 1, 0, "lag"), .SDcols=numeric_cols]
   }
 }
 

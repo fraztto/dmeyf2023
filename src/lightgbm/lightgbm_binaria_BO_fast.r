@@ -307,22 +307,25 @@ dataset[foto_mes == 202006, names(dataset) := NA]
 cols <- names(dataset)
 cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
 
+numeric_cols <- names(Filter(is.numeric, dataset))
+numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+
 # iterar todos los lags hasta 6
 for (i in 1:6) {
   # lag
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")
 
-  dataset[, (anscols) := shift(.SD, i, 0, "lag"), .SDcols=cols]
+  dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols]
 
   # lag_delta
   if (i == 1) {
-    anscols <- paste("lag_delta", i, cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=cols]
+    anscols <- paste("lag_delta", i, numeric_cols, sep="_")
+    dataset[, (anscols) := .SD - shift(.SD, i, NA, "lag"), .SDcols=numeric_cols]
   }
   else if (i < 6) {
-    anscols = paste("lag_delta", cols, sep="_")
-    dataset[, (anscols) := shift(.SD, i, 0, "lag") - shift(.SD, i+1, 0, "lag"), .SDcols=cols]
+    anscols = paste("lag_delta", numeric_cols, sep="_")
+    dataset[, (anscols) := shift(.SD, i, NA, "lag") - shift(.SD, i+1, NA, "lag"), .SDcols=numeric_cols]
   }
 }
 

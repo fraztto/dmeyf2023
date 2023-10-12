@@ -14,7 +14,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240-BO-FAST-13m-04u-6lag-v4-t5-old"
+PARAM$experimento <- "KA8240-BO-FAST-sorted-13m-04u-6lag-v4-t5-20"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -25,11 +25,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 501593
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 834
-PARAM$finalmodel$optim$learning_rate <- 0.010089688
-PARAM$finalmodel$optim$feature_fraction <- 0.950907103
-PARAM$finalmodel$optim$min_data_in_leaf <- 598
-PARAM$finalmodel$optim$num_leaves <- 499
+PARAM$finalmodel$optim$num_iterations <- 422
+PARAM$finalmodel$optim$learning_rate <- 0.233334689
+PARAM$finalmodel$optim$feature_fraction <- 0.433154286
+PARAM$finalmodel$optim$min_data_in_leaf <- 30746
+PARAM$finalmodel$optim$num_leaves <- 834
 
 
 # Hiperparametros FIJOS de  lightgbm
@@ -73,6 +73,7 @@ setwd("~/buckets/b1")
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
+dataset <- dataset[order(numero_de_cliente, foto_mes), ]
 
 # Catastrophe Analysis  -------------------------------------------------------
 # deben ir cosas de este estilo
@@ -112,7 +113,7 @@ for (i in 1:6) {
     lagcols = paste("lag", i - 1, numeric_cols, sep="_")
     lag1cols = paste("lag", i, numeric_cols, sep="_")
     anscols = paste("lag_delta", i, numeric_cols, sep="_")
-    
+
     dataset[, (anscols) := .SD - mget(lag1cols) , .SDcols=lagcols]
   }
 }

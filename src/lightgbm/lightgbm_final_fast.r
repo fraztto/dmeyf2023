@@ -14,7 +14,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240-BO-FAST-sorted-13m-04u-6lag-v4-t5-67"
+PARAM$experimento <- "KA8240-BO-FAST-sorted-13m-04u-6lag-v4-t5-67-dart"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -34,7 +34,7 @@ PARAM$finalmodel$optim$num_leaves <- 901
 
 # Hiperparametros FIJOS de  lightgbm
 PARAM$finalmodel$lgb_basicos <- list(
-  boosting = "gbdt", # puede ir  dart  , ni pruebe random_forest
+  boosting = "dart", # puede ir gbdt o dart  , ni pruebe random_forest
   objective = "binary",
   metric = "custom",
   first_metric_only = TRUE,

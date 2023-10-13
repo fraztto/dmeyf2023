@@ -82,13 +82,17 @@ pb <- progress_bar$new(
   format = "  creando plots [:bar] :percent eta: :eta",
   total = length(campos_buenos), clear = FALSE, width = 60)
 
+options(warn = -1)
+print("Cluster sizes")
+print(dataset[, .(cluster_name, count = .N), by = cluster_name])
+
 pdf(PARAM$plot_output)
 for (campo in campos_buenos) {
-  plt <- ggplot(dataset, aes(x = lag, !!sym(campo), group = cluster_name, colour=cluster_name)) +
+  plt <- ggplot(dataset, aes(x = lag, !!sym(campo), group = cluster_name, colour = cluster_name,)) +
     geom_smooth() +
     ggtitle(paste(campo, " by cluster")) +
     scale_fill_brewer(name = "Cluster", palette="Dark2")
   print(plt)
-  pb$tick()  
+  pb$tick()
 }
 dev.off()

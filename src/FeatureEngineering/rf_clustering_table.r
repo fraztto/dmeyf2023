@@ -6,6 +6,7 @@ gc() # garbage collection
 
 
 require("data.table")
+require("matrixStats")
 
 # Parametros del script
 PARAM <- list()
@@ -53,9 +54,33 @@ options(warn = -1)
 print("Calculando medias")
 counts <- dataset[, .(cluster_name, count = .N), by = cluster_name]
 
+for (j in campos_buenos) {
+  set(dataset, which(is.na(dataset[[j]])), j, 0)
+}
+
 output_ds <- dataset[, lapply(.SD, mean), by = cluster_name, .SDcols = campos_buenos]
 output_ds[counts, on = "cluster_name", cluster_size := i.count]
+output_ds <- output_ds[order(cluster_name), ]
 
+clusters <- unique(output_ds$cluster_name)
+
+output_ds <- transpose(output_ds, keep.names = "variable", make.names = "cluster_name")
+output_ds[, Mean := rowMeans(.SD, na.rm = TRUE), .SDcols = clusters]
+output_ds[, Median := rowMedians(as.matrix(.SD), na.rm = TRUE), .SDcols = clusters]
+output_ds[, Max := rowMaxs(as.matrix(.SD), na.rm = TRUE), .SDcols = clusters]
+output_ds[, Min := rowMins(as.matrix(.SD), na.rm = TRUE), .SDcols = clusters]
+
+clusters_mean_dists <- lapply(clusters, (function (x) paste0("MeanDist", x)))
+clusters_med_dists <- lapply(clusters, (function (x) paste0("MedianDist", x)))
+
+output_ds[, unlist(clusters_mean_dists) := abs(.SD - Mean), .SDcols = clusters]
+output_ds[, unlist(clusters_med_dists) := abs(.SD - Median), .SDcols = clusters]
+
+clusters_norm_mean_dists <- lapply(clusters, (function (x) paste0("NMeanDist", x)))
+clusters_norm_med_dists <- lapply(clusters, (function (x) paste0("NMedianDist", x)))
+
+output_ds[, unlist(clusters_norm_mean_dists) := (.SD - Min) / (Max - Min), .SDcols = clusters_mean_dists]
+output_ds[, unlist(clusters_norm_med_dists) := (.SD - Min) / (Max - Min), .SDcols = clusters_med_dists]
 
 fwrite(output_ds, file = PARAM$table_output)
 print("Listo")

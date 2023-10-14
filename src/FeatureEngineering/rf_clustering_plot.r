@@ -16,6 +16,7 @@ PARAM$dataset <- "./datasets/competencia_02.csv.gz"
 PARAM$dataset_clusters <- "./exp/RF-CLUST0001/RF-CLUST0001_competencia_02_b2_clusters.csv.gz"
 PARAM$plot_output <- "competencia_02_b2_clusters_variables.pdf"
 PARAM$experimento <- "RF-CLUST0002"
+PARAM$max_lag <- -12
 PARAM$undersampling <- 0.1
 # FIN Parametros del script
 
@@ -62,6 +63,7 @@ dataset[, lag :=
           (as.integer(foto_mes / 100) - as.integer(last_seen / 100)) * 12 +
           (as.integer(foto_mes) %% 100) - (as.integer(last_seen) %% 100), ]
 
+dataset <- dataset[lag >= PARAM$max_lag, ]
 
 # creo la carpeta donde va el experimento
 dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE)

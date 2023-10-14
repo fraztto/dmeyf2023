@@ -79,8 +79,8 @@ output_ds[, unlist(clusters_med_dists) := abs(.SD - Median), .SDcols = clusters]
 clusters_norm_mean_dists <- lapply(clusters, (function (x) paste0("NMeanDist", x)))
 clusters_norm_med_dists <- lapply(clusters, (function (x) paste0("NMedianDist", x)))
 
-output_ds[, unlist(clusters_norm_mean_dists) := (.SD - Min) / (Max - Min), .SDcols = clusters_mean_dists]
-output_ds[, unlist(clusters_norm_med_dists) := (.SD - Min) / (Max - Min), .SDcols = clusters_med_dists]
+output_ds[, unlist(clusters_norm_mean_dists) := (.SD - Min) / (Max - Min), .SDcols = unlist(clusters_mean_dists)]
+output_ds[, unlist(clusters_norm_med_dists) := (.SD - Min) / (Max - Min), .SDcols = unlist(clusters_med_dists)]
 
 fwrite(output_ds, file = PARAM$table_output)
 print("Listo")

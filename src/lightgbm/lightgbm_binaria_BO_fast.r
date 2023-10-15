@@ -32,7 +32,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-FAST-sorted-13m-04u-6lag-rank2-v4-t5"
+PARAM$experimento <- "BO-FAST-sorted-13m-04u-6lag-rankfull-v4-t5"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -214,7 +214,7 @@ EstimarGanancia_lightgbm <- function(x) {
   )
 
   tbl <- copy(dataset_test[, list("gan" = ifelse(clase_ternaria == "BAJA+2",
-    PARAM$hyperparametertuning$POS_ganancia, 
+    PARAM$hyperparametertuning$POS_ganancia,
     PARAM$hyperparametertuning$NEG_ganancia))])
 
   tbl[, prob := prediccion]
@@ -300,21 +300,20 @@ dataset[foto_mes %in% c(201910), c("chomebanking_transacciones") := NA]
 dataset[foto_mes == 202006, names(dataset) := NA]
 
 # Data Drifting
-# por ahora, no hago nada
+
+# Usamos rank para las monetarias
+cols_monetarias <- c("mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mcuentas_saldo","mautoservicio","mtarjeta_visa_consumo","mtarjeta_master_consumo","mprestamos_personales","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo","Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo")
+cols_monetarias_rank <- paste0("rank_", cols_monetarias)
+dataset[, (cols_monetarias_rank) := lapply(.SD, function(x) frankv(x, na.last = TRUE)), by = foto_mes, .SDcols = cols_monetarias]
 
 
 # Feature Engineering Historico  ----------------------------------------------
 #   aqui deben calcularse los  lags y  lag_delta
 cols <- names(dataset)
 cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
-cols_monetarias <- c("mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mcuentas_saldo","mautoservicio","mtarjeta_visa_consumo","mtarjeta_master_consumo","mprestamos_personales","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo","Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo")
-cols_monetarias_rank <- paste0("rank_", cols_monetarias)
 
 numeric_cols <- names(Filter(is.numeric, dataset))
 numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
-
-# Usamos rank para las monetarias
-dataset[, (cols_monetarias_rank) := lapply(.SD, function(x) frankv(x, na.last = TRUE)), by = foto_mes, .SDcols = cols_monetarias]
 
 # iterar todos los lags hasta 6
 for (i in 1:6) {
@@ -333,7 +332,7 @@ for (i in 1:6) {
     lagcols = paste("lag", i - 1, numeric_cols, sep="_")
     lag1cols = paste("lag", i, numeric_cols, sep="_")
     anscols = paste("lag_delta", i, numeric_cols, sep="_")
-    
+
     dataset[, (anscols) := .SD - mget(lag1cols) , .SDcols=lagcols]
   }
 }
@@ -379,8 +378,8 @@ dataset[
 dtrain <- lgb.Dataset(
   data = data.matrix(dataset[training == 1L, campos_buenos, with = FALSE]),
   label = dataset[training == 1L, clase01],
-  weight = dataset[training == 1L, 
-    ifelse(clase_ternaria == "BAJA+2", 1.0000001, 
+  weight = dataset[training == 1L,
+    ifelse(clase_ternaria == "BAJA+2", 1.0000001,
       ifelse(clase_ternaria == "BAJA+1", 1.0, 1.0))],
   free_raw_data = FALSE
 )
@@ -395,8 +394,8 @@ dataset[ foto_mes %in% PARAM$input$validation,  validation := 1L]
 dvalidate <- lgb.Dataset(
   data = data.matrix(dataset[validation == 1L, campos_buenos, with = FALSE]),
   label = dataset[validation == 1L, clase01],
-  weight = dataset[validation == 1L, 
-    ifelse(clase_ternaria == "BAJA+2", 1.0000001, 
+  weight = dataset[validation == 1L,
+    ifelse(clase_ternaria == "BAJA+2", 1.0000001,
       ifelse(clase_ternaria == "BAJA+1", 1.0, 1.0))],
   free_raw_data = FALSE
 )

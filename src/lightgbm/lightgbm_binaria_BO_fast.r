@@ -32,7 +32,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-FAST-sorted-13m-04u-6lag-v4-t5"
+PARAM$experimento <- "BO-FAST-sorted-13m-04u-6lag-rank-v4-t5"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -93,11 +93,11 @@ PARAM$bo_lgb <- makeParamSet(
   makeNumericParam("learning_rate", lower = 0.02, upper = 0.3),
   makeNumericParam("feature_fraction", lower = 0.01, upper = 1.0),
   makeIntegerParam("num_leaves", lower = 8L, upper = 1024L),
-  makeIntegerParam("min_data_in_leaf", lower = 100L, upper = 50000L)
+  makeIntegerParam("min_data_in_leaf", lower = 100L, upper = 20000L)
 )
 
 # si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-PARAM$bo_iteraciones <- 100 # iteraciones de la Optimizacion Bayesiana
+PARAM$bo_iteraciones <- 50 # iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
@@ -289,6 +289,7 @@ klog <- paste0(PARAM$experimento, ".txt")
 
 dataset <- dataset[order(numero_de_cliente, foto_mes), ]
 
+print("Haciendo transformaciones")
 # Catastrophe Analysis  -------------------------------------------------------
 # deben ir cosas de este estilo
 #   dataset[foto_mes == 202006, active_quarter := NA]
@@ -306,9 +307,13 @@ dataset[foto_mes == 202006, names(dataset) := NA]
 #   aqui deben calcularse los  lags y  lag_delta
 cols <- names(dataset)
 cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+cols_monetarias <- c("mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mcuentas_saldo","mautoservicio","mtarjeta_visa_consumo","mtarjeta_master_consumo","mprestamos_personales","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo","Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo")
 
 numeric_cols <- names(Filter(is.numeric, dataset))
 numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+
+# Usamos rank para las monetarias
+dataset[, (cols_monetarias) := lapply(.SD, function(x) frankv(x, na.last = TRUE)), by = foto_mes, .SDcols = cols_monetarias]
 
 # iterar todos los lags hasta 6
 for (i in 1:6) {
@@ -331,6 +336,8 @@ for (i in 1:6) {
     dataset[, (anscols) := .SD - mget(lag1cols) , .SDcols=lagcols]
   }
 }
+
+print("Termine transformaciones")
 
 # ahora SI comienza la optimizacion Bayesiana
 

@@ -14,7 +14,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240-BO-FAST-sorted-13m-04u-6lag-v4-t5-67-dart"
+PARAM$experimento <- "KA8240-BO-FAST-sorted-13m-04u-6lag-rank-v4-t5-19"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -25,16 +25,16 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 501593
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 296
-PARAM$finalmodel$optim$learning_rate <- 0.051619121
-PARAM$finalmodel$optim$feature_fraction <- 0.503477146
-PARAM$finalmodel$optim$min_data_in_leaf <- 1201
-PARAM$finalmodel$optim$num_leaves <- 901
+PARAM$finalmodel$optim$num_iterations <- 4316
+PARAM$finalmodel$optim$learning_rate <- 0.020231083
+PARAM$finalmodel$optim$feature_fraction <- 0.34636497
+PARAM$finalmodel$optim$min_data_in_leaf <- 16478
+PARAM$finalmodel$optim$num_leaves <- 731
 
 
 # Hiperparametros FIJOS de  lightgbm
 PARAM$finalmodel$lgb_basicos <- list(
-  boosting = "dart", # puede ir gbdt o dart  , ni pruebe random_forest
+  boosting = "gbdt", # puede ir gbdt o dart  , ni pruebe random_forest
   objective = "binary",
   metric = "custom",
   first_metric_only = TRUE,
@@ -75,6 +75,7 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 dataset <- dataset[order(numero_de_cliente, foto_mes), ]
 
+print("Haciendo transformaciones")
 # Catastrophe Analysis  -------------------------------------------------------
 # deben ir cosas de este estilo
 #   dataset[foto_mes == 202006, active_quarter := NA]
@@ -92,9 +93,13 @@ dataset[foto_mes == 202006, names(dataset) := NA]
 #   aqui deben calcularse los  lags y  lag_delta
 cols <- names(dataset)
 cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+cols_monetarias <- c("mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mcuentas_saldo","mautoservicio","mtarjeta_visa_consumo","mtarjeta_master_consumo","mprestamos_personales","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo","Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo")
 
 numeric_cols <- names(Filter(is.numeric, dataset))
 numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+
+# Usamos rank para las monetarias
+dataset[, (cols_monetarias) := lapply(.SD, function(x) frankv(x, na.last = TRUE)), by = foto_mes, .SDcols = cols_monetarias]
 
 # iterar todos los lags hasta 6
 for (i in 1:6) {
@@ -117,6 +122,8 @@ for (i in 1:6) {
     dataset[, (anscols) := .SD - mget(lag1cols) , .SDcols=lagcols]
   }
 }
+
+print("Termine transformaciones")
 
 #--------------------------------------
 

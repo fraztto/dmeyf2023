@@ -32,7 +32,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-FAST-COLAB-500IT"
+PARAM$experimento <- "BO-FAST-COLAB-50IT"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
@@ -40,10 +40,10 @@ PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 #  mucha magia emerger de esta eleccion
 PARAM$input$testing <- c(202107)
 PARAM$input$validation <- c(202106)
-PARAM$input$training <- c(201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$training <- c(202012, 202101, 202102, 202103, 202104, 202105)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 0.5
+PARAM$trainingstrategy$undersampling <- 1
 PARAM$trainingstrategy$semilla_azar <- 501593 # Aqui poner su  primer  semilla
 
 PARAM$hyperparametertuning$POS_ganancia <- 273000
@@ -97,7 +97,7 @@ PARAM$bo_lgb <- makeParamSet(
 )
 
 # si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-PARAM$bo_iteraciones <- 500 # iteraciones de la Optimizacion Bayesiana
+PARAM$bo_iteraciones <- 50 # iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
@@ -316,7 +316,8 @@ numeric_cols <- names(Filter(is.numeric, dataset))
 numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
 
 # iterar todos los lags hasta 6
-for (i in 1:3) {
+lags <- c(1, 3, 6)
+for (i in lags) {
   # lag
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")

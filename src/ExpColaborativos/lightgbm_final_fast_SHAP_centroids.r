@@ -19,7 +19,8 @@ PARAM$experimento <- "EXP-COLAB-BO-31-centroids"
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105, 202106)
+PARAM$input$training <- c(202011, 202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$validation <- c(202106) # meses donde se valida el modelo
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 PARAM$finalmodel$semilla <- 501593
@@ -73,6 +74,8 @@ PARAM$finalmodel$lgb_basicos <- list(
 # Aqui empieza el programa
 setwd("~/buckets/b1")
 
+# concateno los meses de training, validation y future
+meses_dataset <- c(PARAM$input$training, PARAM$input$validation, PARAM$input$future)
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
@@ -188,30 +191,27 @@ fwrite(tb_importancia,
 #--------------------------------------
 
 
-# aplico el modelo a los datos sin clase
-dapply <- dataset[foto_mes == PARAM$input$future]
-
-# aplico el modelo a los datos nuevos
-prediccion <- predict(
-  modelo,
-  data.matrix(dapply[, campos_buenos, with = FALSE]),
-)
+# aplico el modelo a los datos de entrenamiento para obtener los shap values
+dapply <- dataset[foto_mes %in% meses_dataset, campos_buenos, with = FALSE]
 
 # busco los valores shap del mismo set de testing
-contribucion <- predict(
+contribucion_completa <- predict(
   modelo,
-  data.matrix(dapply[, campos_buenos, with = FALSE]),
+  data.matrix(dapply),
+  type = "contrib"
+)
+
+contribucion_val <- predict(
+  modelo,
+  data.matrix(dapply[foto_mes %in% PARAM$input$validation,]),
   type = "contrib"
 )
 
 # hago clustering k-means de los shap values
 
 set.seed(PARAM$clustering$semilla)
-kmeans <- kmeans(contribucion, PARAM$clustering$k, iter.max = 1000, nstart = 10)
+kmeans <- kmeans(contribucion_val, PARAM$clustering$k, iter.max = 1000, nstart = 10)
 centroides <- kmeans$centers
-
-# set names
-names(centroides) <- campos_buenos
 
 # grabo los centroides de los clusters
 fwrite(centroides,
@@ -219,10 +219,25 @@ fwrite(centroides,
   sep = "\t"
 )
 
-# agrego las distancias a los centroides al dataset
-#euclidean <- function(a, b) sqrt(sum((a - b)^2))
+contribucion_completa <- as.data.table(contribucion_completa)
+cols_contribucion <- as.array(names(contribucion_completa))
+# mido distancia a cada contribución al centroide
+for (i in 1:PARAM$clustering$k)
+{
+  distance_name <- paste0("distancia_centroide_", i)
+  print(paste0("Agregando ", distance_name, " al dataset"))
+  contribucion_completa[, (distance_name) :=
+      apply(contribucion_completa[, .SD, .SDcols = cols_contribucion], 1,
+            function(x) sqrt(sum((x - centroides[i, ])^2)))
+  ]
+  dataset[foto_mes %in% meses_dataset, (distance_name) := contribucion_completa[, distance_name, with = FALSE]]
+}
 
-# nombre_centroides <- paste0("distancia_centroide_", 1:PARAM$clustering$k)
-# dataset[train == 1L, (nombre_centroides) := euclidean(.SD, centroides), .SDcols = campos_buenos]
+# grabo el dataset con las distancias como csv gzip
+
+fwrite(dataset[foto_mes %in% meses_dataset,],
+  file = "./datasets/competencia_03_with_centroids.csv.gz",
+  sep = "\t"
+)
 
 cat("\n\nLa generacion de los centroides ha terminado\n")

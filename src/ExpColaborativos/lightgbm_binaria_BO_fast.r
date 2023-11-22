@@ -32,15 +32,15 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-FAST-COLAB-50IT"
+PARAM$experimento <- "BO-FAST-COLAB-50IT-FINAL"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
 # los meses en los que vamos a entrenar
 #  mucha magia emerger de esta eleccion
-PARAM$input$testing <- c(202107)
-PARAM$input$validation <- c(202106)
-PARAM$input$training <- c(202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$testing <- c(202106)
+PARAM$input$validation <- c(202105)
+PARAM$input$training <- c(202011, 202012, 202101, 202102, 202103, 202104)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
 PARAM$trainingstrategy$undersampling <- 1

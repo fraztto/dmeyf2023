@@ -35,7 +35,7 @@ PARAM <- list()
 PARAM$experimento <- "BO-FAST-COLAB-50IT-WITH-CENTROIDS"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
-PARAM$input$centroids <- "./exp/EXP-COLAB-BO-31-centroids/centroides.txt"
+PARAM$input$centroids <- "~/buckets/b1/exp/EXP-COLAB-BO-31-centroids/centroides.txt"
 
 # los meses en los que vamos a entrenar
 #  mucha magia emerger de esta eleccion

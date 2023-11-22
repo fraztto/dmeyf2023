@@ -210,6 +210,9 @@ set.seed(PARAM$clustering$semilla)
 kmeans <- kmeans(contribucion, PARAM$clustering$k, iter.max = 1000, nstart = 10)
 centroides <- kmeans$centers
 
+# set names
+names(centroides) <- campos_buenos
+
 # grabo los centroides de los clusters
 fwrite(centroides,
   file = "centroides.txt",

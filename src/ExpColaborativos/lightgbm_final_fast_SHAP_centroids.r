@@ -32,6 +32,7 @@ PARAM$finalmodel$optim$min_data_in_leaf <- 9579
 PARAM$finalmodel$optim$num_leaves <- 1015
 
 PARAM$clustering$k <- 7
+PARAM$clustering$semilla <- 501593
 
 
 # Hiperparametros FIJOS de  lightgbm

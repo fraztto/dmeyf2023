@@ -344,7 +344,11 @@ for (i in lags) {
 euclidean <- function(a, b) sqrt(sum((a - b)^2))
 centroid_names <- paste0("centroid_", 1:7)
 centroides <- fread(PARAM$input$centroids)
-dataset[, (centroid_names) := euclidean(.SD, centroides), .SDcols = numeric_cols]
+ds_cols <- names(dataset)
+
+for (i in 1:7) {
+  dataset[, (centroid_names[i]) := euclidean(.SD, centroides[i, .SDcols = ds_cols]), .SDcols = ds_cols]
+}
 
 print("Termine transformaciones")
 

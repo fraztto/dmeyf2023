@@ -206,7 +206,7 @@ contribucion <- predict(
 
 # hago clustering k-means de los shap values
 
-set.seed(semilla)
+set.seed(PARAM$clustering$semilla)
 kmeans <- kmeans(contribucion, PARAM$clustering$k, iter.max = 1000, nstart = 10)
 centroides <- kmeans$centers
 

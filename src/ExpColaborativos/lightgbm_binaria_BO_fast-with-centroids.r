@@ -341,16 +341,18 @@ for (i in lags) {
 
 #--------------------------------------
 # Cargo los centroides
+campos_buenos <- setdiff(
+  colnames(dataset),
+  c("clase_ternaria", "clase01", "azar", "training")
+)
+
 euclidean <- function(a, b) sqrt(sum((a - b)^2))
 centroid_names <- paste0("centroid_", 1:7)
-centroides <- fread(PARAM$input$centroids)
-ds_cols <- names(dataset)
+# load centroids and ignore first column
+centroides <- fread(PARAM$input$centroids)[, -1]
 
 for (i in 1:7) {
-  dataset[, (centroid_names[i]) := lapply(
-    .SD,
-    function(x) euclidean(x, centroides[i, ])
-  ), .SDcols = ds_cols]
+  dataset[, (centroid_names[i]) := euclidean(.SD, centroides[i, ]), .SDcols = campos_buenos, by = 1:nrow(dataset)]
 }
 
 print("Termine transformaciones")

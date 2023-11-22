@@ -347,7 +347,10 @@ centroides <- fread(PARAM$input$centroids)
 ds_cols <- names(dataset)
 
 for (i in 1:7) {
-  dataset[, (centroid_names[i]) := euclidean(.SD, centroides[i, .SDcols = ds_cols]), .SDcols = ds_cols]
+  dataset[, (centroid_names[i]) := lapply(
+    .SD,
+    function(x) euclidean(x, centroides[i, ])
+  ), .SDcols = ds_cols]
 }
 
 print("Termine transformaciones")

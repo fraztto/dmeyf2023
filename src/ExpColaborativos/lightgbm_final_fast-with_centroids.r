@@ -26,11 +26,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 501593
 
 # hiperparametros BO 50it de experimentos colaborativos
-PARAM$finalmodel$optim$num_iterations <- 2432
-PARAM$finalmodel$optim$learning_rate <- 0.022755765
-PARAM$finalmodel$optim$feature_fraction <- 0.160380145
-PARAM$finalmodel$optim$min_data_in_leaf <- 4838
-PARAM$finalmodel$optim$num_leaves <- 626
+PARAM$finalmodel$optim$num_iterations <- 1585
+PARAM$finalmodel$optim$learning_rate <- 0.02041586
+PARAM$finalmodel$optim$feature_fraction <- 0.209911431
+PARAM$finalmodel$optim$min_data_in_leaf <- 4922
+PARAM$finalmodel$optim$num_leaves <- 899
 
 
 # Hiperparametros FIJOS de  lightgbm

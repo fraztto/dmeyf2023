@@ -7,6 +7,7 @@ PARAM <- list()
 PARAM$experimento_1 <- "EXP-COLAB-BO-54-FINAL"
 PARAM$pattern_1 <- "EXP-COLAB-BO-54-FINAL_"
 PARAM$experimento_2 <- "EXP-COLAB-BO-54-WITH-CENTROIDS-FINAL"
+PARAM$pattern_2 <- "EXP-COLAB-BO-54-WITH-CENTROIDS-FINAL_"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 PARAM$input$future <- c(202107)
@@ -15,8 +16,8 @@ PARAM$hyperparametertuning$POS_ganancia <- 273000
 PARAM$hyperparametertuning$NEG_ganancia <- -7000
 
 # Establezco el Working Directory DEL EXPERIMENTO
-setwd("~/buckets/b1")
-#setwd("~/FacuDMEF/")
+#setwd("~/buckets/b1")
+setwd("~/FacuDMEF/")
 
 
 EstimarGanancia <- function(preds, dataset_test) {
@@ -69,7 +70,7 @@ envios2 <- filenames2 %>%
     stringr::str_replace_all(pattern = ".csv", replacement = "") %>%
     as.numeric()
 
-ganancias <- data.table(tratamiento = integer(), envios = integer(), ganancia = numeric())
+
 for (i in 1:length(paths2)) {
     # cargo las predicciones
     prediccion <- fread(paths2[i], stringsAsFactors = TRUE)

@@ -24,9 +24,28 @@ shap_values <- fread(PARAM$input$shap_values, stringsAsFactors = TRUE)
 dataX <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 # To prepare the long-format data:
+
+features_string <- list()
+for (cl in 1:7){
+    v <- shap_values[cluster == cl,]
+    cluster_dataX <- copy(dataX)
+    cluster_dataX[, cluster := shap_values$cluster]
+    cluster_dataX <- cluster_dataX[cluster == cl,]
+
+    shap_long <- shap.prep(shap_contrib = v[, -c("SHAP_VAL", "cluster")], X_train = cluster_dataX[, -c("cluster")], top_n = 150)
+
+    # **SHAP summary plot**
+    shap.plot.summary(shap_long)
+    ggsave(paste0("shap_summary-cluster-", cl, ".png"), height = 150, width = 50, units = "cm", limitsize = FALSE)
+
+    top_n <- 20
+    mean_values <- shap_long[, .(group_mean = mean(value)), by=variable]
+    setorder(mean_values, -group_mean)
+    features_string[[cl]] <- paste0(mean_values$variable[1:top_n], collapse = ", ")
+}
+
+fwrite(data.table(cluster = 1:7, features = features_string), file = "features_string.csv", sep = "\t")
 shap_long <- shap.prep(shap_contrib = shap_values[, -c("SHAP_VAL", "cluster")], X_train = dataX, top_n = 150)
-# (Notice that there will be a data.table warning from `melt.data.table` due to `dayint` coerced from
-# integer to double)
 
 # **SHAP summary plot**
 shap.plot.summary(shap_long)

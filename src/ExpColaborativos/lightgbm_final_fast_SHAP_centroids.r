@@ -14,7 +14,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "EXP-COLAB-BO-54-centroids-FINAL"
+PARAM$experimento <- "EXP-COLAB-BO-55-centroids-FINAL"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
@@ -27,11 +27,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 501593
 
 # hiperparametros BO 50it de experimentos colaborativos
-PARAM$finalmodel$optim$num_iterations <- 2432
-PARAM$finalmodel$optim$learning_rate <- 0.022755765
-PARAM$finalmodel$optim$feature_fraction <- 0.160380145
-PARAM$finalmodel$optim$min_data_in_leaf <- 4838
-PARAM$finalmodel$optim$num_leaves <- 626
+PARAM$finalmodel$optim$num_iterations <- 369
+PARAM$finalmodel$optim$learning_rate <- 0.027779356
+PARAM$finalmodel$optim$feature_fraction <- 0.222803035
+PARAM$finalmodel$optim$min_data_in_leaf <- 160
+PARAM$finalmodel$optim$num_leaves <- 630
 
 PARAM$clustering$k <- 7
 PARAM$clustering$semilla <- 501593
@@ -201,6 +201,9 @@ contribucion_val <- predict(
   data.matrix(dapply[foto_mes %in% PARAM$input$validation, campos_buenos, with = FALSE]),
   type = "contrib"
 )
+
+contribucion_val <- as.data.table(contribucion_val)[, -c(nco)]
+
 
 # hago clustering k-means de los shap values
 print("Haciendo clustering")

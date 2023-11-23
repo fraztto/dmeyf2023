@@ -19,7 +19,8 @@ PARAM$experimento <- "EXP-COLAB-BO-54-centroids-FINAL"
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(202011, 202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$meses_apply <- c(202011, 202012, 202101, 202102, 202103, 202104, 202105, 202106, 202107)
+PARAM$input$training <- c(202012, 202101, 202102, 202103, 202104, 202105)
 PARAM$input$validation <- c(202106) # meses donde se valida el modelo
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
@@ -74,8 +75,6 @@ PARAM$finalmodel$lgb_basicos <- list(
 # Aqui empieza el programa
 setwd("~/buckets/b1")
 
-# concateno los meses de training, validation y future
-meses_dataset <- c(PARAM$input$training, PARAM$input$validation, PARAM$input$future)
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
@@ -192,7 +191,7 @@ print("Termine entrenamiento")
 
 #--------------------------------------
 
-
+meses_dataset <- PARAM$input$meses_apply
 # aplico el modelo a los datos de entrenamiento para obtener los shap values
 dapply <- dataset[foto_mes %in% meses_dataset, campos_buenos, with = FALSE]
 

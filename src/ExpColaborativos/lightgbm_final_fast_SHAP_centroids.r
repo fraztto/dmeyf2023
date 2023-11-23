@@ -198,7 +198,7 @@ dapply <- dataset[foto_mes %in% meses_dataset, campos_buenos, with = FALSE]
 
 contribucion_val <- predict(
   modelo,
-  data.matrix(dapply[foto_mes %in% PARAM$input$validation,]),
+  data.matrix(dapply[foto_mes %in% PARAM$input$validation, campos_buenos, with = FALSE]),
   type = "contrib"
 )
 
@@ -224,7 +224,7 @@ for (mes in meses_dataset) {
   # busco los valores shap del mismo set de testing
   contribucion_completa <- predict(
     modelo,
-    data.matrix(dapply[foto_mes == mes, ]),
+    data.matrix(dapply[foto_mes == mes, campos_buenos, with = FALSE]),
     type = "contrib"
   )
   contribucion_completa <- as.data.table(contribucion_completa)

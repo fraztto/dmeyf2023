@@ -202,7 +202,7 @@ contribucion_val <- predict(
   type = "contrib"
 )
 
-contribucion_val <- as.data.table(contribucion_val)[, -c(nco)]
+contribucion_val <- as.data.table(contribucion_val)
 
 
 # hago clustering k-means de los shap values

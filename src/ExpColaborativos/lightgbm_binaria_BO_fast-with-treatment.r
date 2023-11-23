@@ -275,7 +275,6 @@ EstimarGanancia_lightgbm <- function(x) {
 # Aqui se debe poner la carpeta de la computadora local
 setwd("~/buckets/b1/") # Establezco el Working Directory
 
-
 # cargo el dataset donde voy a entrenar el modelo
 dataset <- fread(PARAM$input$dataset)
 
@@ -345,17 +344,22 @@ for (i in lags) {
 }
 
 # add centroid distance
-campos_buenos <- setdiff(
-  colnames(dataset),
-  c("clase_ternaria", "clase01", "azar", "training")
-)
+numeric_cols <- names(Filter(is.numeric, dataset))
+numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
 
 euclidean <- function(a, b) {
-  apply(a, 1, function(x) sqrt(sum((x - b)^2)))
+  a[is.na(a)] <- 0
+  b[is.na(b)] <- 0
+  function(x) sqrt(rowSums((as.matrix(a) - rep.int(as.vector(unlist(b)), nrow(a)))^2))
 }
-for (i in 1:nrow(centroides)) {
-  print(paste0("dist_centroid_", i))
-  dataset[, paste0("dist_centroid_", i) := euclidean(.SD, centroides[cluster==i, -c("cluster")]), .SDcols = campos_buenos]
+for (fm in c(PARAM$input$training, PARAM$input$validation, PARAM$input$testing)){
+  print(paste0("foto_mes_", fm))
+  for (i in 1:nrow(centroides)) {
+    print(paste0("dist_centroid_", i))
+    dataset[foto_mes == fm,
+      paste0("dist_centroid_", i) := euclidean(.SD, centroides[cluster==i, .SD, .SDcols=numeric_cols]),
+      .SDcols = numeric_cols]
+  }
 }
 
 print("Termine transformaciones")

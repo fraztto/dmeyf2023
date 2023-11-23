@@ -351,9 +351,10 @@ campos_buenos <- setdiff(
 )
 
 euclidean <- function(a, b) {
-  sqrt(sum((as.matrix(a) - rep.int(as.vector(b), nrow(a)))^2))
+  apply(a, 1, function(x) sqrt(sum((x - b)^2)))
 }
 for (i in 1:nrow(centroides)) {
+  print(paste0("dist_centroid_", i))
   dataset[, paste0("dist_centroid_", i) := euclidean(.SD, centroides[cluster==i, -c("cluster")]), .SDcols = campos_buenos]
 }
 

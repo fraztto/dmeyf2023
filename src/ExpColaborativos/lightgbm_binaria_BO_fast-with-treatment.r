@@ -350,7 +350,7 @@ numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes
 euclidean <- function(a, b) {
   a[is.na(a)] <- 0
   b[is.na(b)] <- 0
-  function(x) sqrt(rowSums((as.matrix(a) - rep.int(as.vector(unlist(b)), nrow(a)))^2))
+  sqrt(rowSums((as.matrix(a) - rep.int(as.vector(unlist(b)), nrow(a)))^2))
 }
 for (fm in c(PARAM$input$training, PARAM$input$validation, PARAM$input$testing)){
   print(paste0("foto_mes_", fm))

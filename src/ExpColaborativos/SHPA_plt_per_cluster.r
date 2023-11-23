@@ -58,3 +58,18 @@ ggsave("shap_force_plot_bygroup.png", height = 15, width = 40, units = "cm", lim
 plot_data <- shap.prep.stack.data(shap_contrib = shap_values[, -c("SHAP_VAL", "cluster")], top_n = 10, n_groups = 7)
 shap.plot.force_plot_bygroup(plot_data)
 ggsave("shap_force_plot_bygroup-10.png", height = 15, width = 40, units = "cm", limitsize = FALSE)
+
+# find interactions between the best features in the cluster
+
+# join all the possible variables:
+all_features <- paste0(features_string, collapse = ",")
+all_features <- unlist(strsplit(all_features, ","))
+all_features <- unique(all_features)
+
+# find the interactions between the best features
+v <- shap_values[, ]
+cluster_dataX <- copy(dataX)
+cluster_dataX[, cluster := shap_values$cluster]
+cluster_dataX <- cluster_dataX[cluster == cl,]
+
+

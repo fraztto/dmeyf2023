@@ -245,5 +245,13 @@ fwrite(contrib_val_apply,
   file = "contribuciones_apply.csv.gz"
 )
 
+# calculate cluster centroids
+contrib_val_apply[, cluster := kmeans$cluster]
+cluster_centroids <- contrib_val_apply[, lapply(.SD, mean), by = cluster]
+
+fwrite(cluster_centroids,
+  file = "cluster_centroids.csv.gz"
+)
+
 print("Termine clustering")
 #--------------------------------------

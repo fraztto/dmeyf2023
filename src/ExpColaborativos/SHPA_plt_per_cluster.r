@@ -41,7 +41,7 @@ for (cl in 1:7){
     top_n <- 20
     mean_values <- shap_long[, .(group_mean = mean(value)), by=variable]
     setorder(mean_values, -group_mean)
-    features_string[[cl]] <- paste0(mean_values$variable[1:top_n], collapse = ", ")
+    features_string[[cl]] <- paste0(mean_values$variable[1:top_n], collapse = ",")
 }
 
 fwrite(data.table(cluster = 1:7, features = features_string), file = "features_string.csv", sep = "\t")

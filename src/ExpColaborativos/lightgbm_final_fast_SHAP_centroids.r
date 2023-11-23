@@ -225,6 +225,7 @@ kmeans <- kmeans(contribucion_val, PARAM$clustering$k, iter.max = 1000, nstart =
 centroides <- kmeans$centers
 
 contrib_cols <- c(campos_buenos, "SHAP_VAL")
+contrib_cols <- paste0("SHAP_", contrib_cols)
 colnames(contribucion_val) <- contrib_cols
 
 contribucion_val[, cluster := kmeans$cluster]
@@ -238,6 +239,10 @@ fwrite(centroides,
 # grabo el dataset con los clusters como csv gzip
 fwrite(contribucion_val,
   file = "contribuciones.csv.gz"
+)
+
+fwrite(contrib_val_apply,
+  file = "contribuciones_apply.csv.gz"
 )
 
 print("Termine clustering")

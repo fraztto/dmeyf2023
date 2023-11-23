@@ -32,9 +32,10 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-FAST-COLAB-50IT-FINAL"
+PARAM$experimento <- "EXP-COLAB-centroids-FINAL-BO"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
+PARAM$input$centroides <- "./exp/EXP-COLAB-BO-55-centroids-FINAL/cluster_centroids.csv.gz"
 
 # los meses en los que vamos a entrenar
 #  mucha magia emerger de esta eleccion
@@ -272,10 +273,13 @@ EstimarGanancia_lightgbm <- function(x) {
 # Aqui empieza el programa
 
 # Aqui se debe poner la carpeta de la computadora local
-setwd("~/buckets/b1/") # Establezco el Working Directory
+#setwd("~/buckets/b1/") # Establezco el Working Directory
+setwd("~/FacuDMEF/") # Establezco el Working Directory
 
 # cargo el dataset donde voy a entrenar el modelo
 dataset <- fread(PARAM$input$dataset)
+
+centroides <- fread(PARAM$input$centroides)
 
 
 # creo la carpeta donde va el experimento
@@ -340,29 +344,18 @@ for (i in lags) {
   }
 }
 
-best_cols <- PARAM$finalmodel$best_cols
-lags <- c(1, 2, 3, 4, 5, 6)
-for (i in lags) {
-  # lag
-  # add name to the columns with the lag number
-  anscols <- paste("lag", i, best_cols, sep="_")
+# add centroid distance
+campos_buenos <- setdiff(
+  colnames(dataset),
+  c("clase_ternaria", "clase01", "azar", "training")
+)
 
-  dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=best_cols]
-
-  # lag_delta
-  if (i == 1) {
-    anscols <- paste("lag_delta", i, best_cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=best_cols]
-  }
-  else if (i < 6) {
-    lagcols = paste("lag", i - 1, best_cols, sep="_")
-    lag1cols = paste("lag", i, best_cols, sep="_")
-    anscols = paste("lag_delta", i, best_cols, sep="_")
-
-    dataset[, (anscols) := .SD - mget(lag1cols) , .SDcols=lagcols]
-  }
+euclidean <- function(a, b) {
+  sqrt(sum((as.matrix(a) - rep.int(as.vector(b), nrow(a)))^2))
 }
-
+for (i in 1:nrow(centroides)) {
+  dataset[, paste0("dist_centroid_", i) := euclidean(.SD, centroides[cluster==i, -c("cluster")]), .SDcols = campos_buenos]
+}
 
 print("Termine transformaciones")
 

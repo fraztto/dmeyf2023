@@ -191,6 +191,7 @@ print("Termine entrenamiento")
 
 #--------------------------------------
 
+print("Inferencia en validacion")
 meses_dataset <- PARAM$input$meses_apply
 # aplico el modelo a los datos de entrenamiento para obtener los shap values
 dapply <- dataset[foto_mes %in% meses_dataset, campos_buenos, with = FALSE]
@@ -202,6 +203,7 @@ contribucion_val <- predict(
 )
 
 # hago clustering k-means de los shap values
+print("Haciendo clustering")
 
 set.seed(PARAM$clustering$semilla)
 kmeans <- kmeans(contribucion_val, PARAM$clustering$k, iter.max = 1000, nstart = 10)

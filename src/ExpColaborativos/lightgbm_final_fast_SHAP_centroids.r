@@ -188,18 +188,13 @@ fwrite(tb_importancia,
   sep = "\t"
 )
 
+print("Termine entrenamiento")
+
 #--------------------------------------
 
 
 # aplico el modelo a los datos de entrenamiento para obtener los shap values
 dapply <- dataset[foto_mes %in% meses_dataset, campos_buenos, with = FALSE]
-
-# busco los valores shap del mismo set de testing
-contribucion_completa <- predict(
-  modelo,
-  data.matrix(dapply),
-  type = "contrib"
-)
 
 contribucion_val <- predict(
   modelo,
@@ -219,18 +214,31 @@ fwrite(centroides,
   sep = "\t"
 )
 
-contribucion_completa <- as.data.table(contribucion_completa)
-cols_contribucion <- as.array(names(contribucion_completa))
-# mido distancia a cada contribución al centroide
-for (i in 1:PARAM$clustering$k)
-{
-  distance_name <- paste0("distancia_centroide_", i)
-  print(paste0("Agregando ", distance_name, " al dataset"))
-  contribucion_completa[, (distance_name) :=
-      apply(contribucion_completa[, .SD, .SDcols = cols_contribucion], 1,
-            function(x) sqrt(sum((x - centroides[i, ])^2)))
-  ]
-  dataset[foto_mes %in% meses_dataset, (distance_name) := contribucion_completa[, distance_name, with = FALSE]]
+print("Termine clustering")
+#--------------------------------------
+
+
+for (mes in meses_dataset) {
+  print(paste0("Calculando distancias para mes ", mes))
+  # busco los valores shap del mismo set de testing
+  contribucion_completa <- predict(
+    modelo,
+    data.matrix(dapply[foto_mes == mes, ]),
+    type = "contrib"
+  )
+  contribucion_completa <- as.data.table(contribucion_completa)
+  cols_contribucion <- as.array(names(contribucion_completa))
+
+  # mido distancia a cada contribución al centroide
+  for (i in 1:PARAM$clustering$k) {
+    distance_name <- paste0("distancia_centroide_", i)
+    print(paste0("Agregando ", distance_name, " al dataset"))
+    contribucion_completa[, (distance_name) :=
+        apply(contribucion_completa[, .SD, .SDcols = cols_contribucion], 1,
+              function(x) sqrt(sum((x - centroides[i, ])^2)))
+    ]
+    dataset[foto_mes == mes, (distance_name) := contribucion_completa[, distance_name, with = FALSE]]
+  }
 }
 
 # grabo el dataset con las distancias como csv gzip

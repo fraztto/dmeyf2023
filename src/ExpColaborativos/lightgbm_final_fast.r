@@ -14,7 +14,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "EXP-COLAB-BO-XX-FINAL"
+PARAM$experimento <- "EXP-COLAB-BO-54-FINAL"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
@@ -25,11 +25,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 501593
 
 # hiperparametros BO 50it de experimentos colaborativos
-PARAM$finalmodel$optim$num_iterations <- 266
-PARAM$finalmodel$optim$learning_rate <- 0.118983015
-PARAM$finalmodel$optim$feature_fraction <- 0.99756646
-PARAM$finalmodel$optim$min_data_in_leaf <- 9579
-PARAM$finalmodel$optim$num_leaves <- 1015
+PARAM$finalmodel$optim$num_iterations <- 2432
+PARAM$finalmodel$optim$learning_rate <- 0.022755765
+PARAM$finalmodel$optim$feature_fraction <- 0.160380145
+PARAM$finalmodel$optim$min_data_in_leaf <- 4838
+PARAM$finalmodel$optim$num_leaves <- 626
 
 
 # Hiperparametros FIJOS de  lightgbm

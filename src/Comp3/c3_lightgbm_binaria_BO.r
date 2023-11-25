@@ -341,8 +341,8 @@ for (i in 1:6) {
 
 for(col in numeric_cols) {
   lags <- 1:6
-  lag_cols <- paste0("lag", lags, col, sep="_")
-  mean_col <- paste0("mean", col, sep="_")
+  lag_cols <- paste("lag", lags, col, sep="_")
+  mean_col <- paste("mean", col, sep="_")
   dataset[, (mean_col) := rowMeans(.SD, na.rm = TRUE), .SDcols=lag_cols]
 }
 

@@ -352,15 +352,15 @@ dataset[, catm_trx_sum_ccomisiones_otras := catm_trx + ccomisiones_otras]
 dataset[, catm_trx_sum_cproductos := catm_trx + cproductos]
 dataset[, ctarjeta_debito_transacciones_sum_cproductos := ctarjeta_debito_transacciones + cproductos]
 dataset[, ctrx_quarter_sum_mpagomiscuentas := ctrx_quarter + mpagomiscuentas]
-dataset[, visa_mlimitecompra_multiply_ctrx_quarter := visa_mlimitecompra * ctrx_quarter]
+dataset[, visa_mlimitecompra_multiply_ctrx_quarter := Visa_mlimitecompra * ctrx_quarter]
 dataset[, cextraccion_autoservicio_sum_ccomisiones_otras := cextraccion_autoservicio + ccomisiones_otras]
 dataset[, ctrx_quarter_sum_mplazo_fijo_dolares := ctrx_quarter + mplazo_fijo_dolares]
 dataset[, mextraccion_autoservicio_sum_ccomisiones_otras := mextraccion_autoservicio + ccomisiones_otras]
 dataset[, ctarjeta_debito_transacciones_diff_ctrx_quarter := ctarjeta_debito_transacciones - ctrx_quarter]
 dataset[, ccomisiones_otras_sum_ctarjeta_debito_transacciones := ccomisiones_otras + ctarjeta_debito_transacciones]
-dataset[, master_fvencimiento_ratio_ctrx_quarter := master_fvencimiento / ctrx_quarter]
+dataset[, master_fvencimiento_ratio_ctrx_quarter := Master_Fvencimiento / ctrx_quarter]
 dataset[, matm_sum_ccomisiones_otras := matm + ccomisiones_otras]
-dataset[, master_fechaalta_ratio_ctrx_quarter := master_fechaalta / ctrx_quarter]
+dataset[, master_fechaalta_ratio_ctrx_quarter := Master_fechaalta / ctrx_quarter]
 
 print("Termine transformaciones")
 

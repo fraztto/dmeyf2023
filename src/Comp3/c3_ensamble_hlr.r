@@ -63,6 +63,7 @@ PARAM$finalmodel$lgb_basicos <- list(
   skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
 
   extra_trees = TRUE, # Magic Sauce
+  seed = 0,
 )
 
 

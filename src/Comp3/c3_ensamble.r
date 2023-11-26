@@ -193,7 +193,7 @@ dtrain <- lgb.Dataset(
 
 # aplico el modelo a los datos sin clase
 dapply <- dataset[foto_mes == PARAM$input$future]
-predicciones <- dapply[, numero_de_cliente]
+predicciones <- dapply[, list(numero_de_cliente, foto_mes)]
 
 for (semilla in PARAM$finalmodel$semillas){
   print(paste0("Semilla: ", semilla))

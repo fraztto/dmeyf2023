@@ -197,19 +197,13 @@ predicciones <- dapply[, numero_de_cliente]
 
 for (semilla in PARAM$finalmodel$semillas){
   print(paste0("Semilla: ", semilla))
+  param_completo <- c(PARAM$finalmodel$lgb_basicos,
+                      PARAM$finalmodel$optim)
+  param_completo$seed <- semilla
   # entreno el modelo
   modelo <- lgb.train(
     data = dtrain,
-    param = list(
-      objective = "binary",
-      max_bin = PARAM$finalmodel$max_bin,
-      learning_rate = PARAM$finalmodel$learning_rate,
-      num_iterations = PARAM$finalmodel$num_iterations,
-      num_leaves = PARAM$finalmodel$num_leaves,
-      min_data_in_leaf = PARAM$finalmodel$min_data_in_leaf,
-      feature_fraction = PARAM$finalmodel$feature_fraction,
-      seed = semilla
-    )
+    param = param_completo,
   )
 
   # imprimo importancia de variables del modelo de esta semilla

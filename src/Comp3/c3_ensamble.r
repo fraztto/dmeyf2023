@@ -196,7 +196,7 @@ dapply <- dataset[foto_mes == PARAM$input$future]
 predicciones <- dapply[, numero_de_cliente]
 
 for (semilla in PARAM$finalmodel$semillas){
-
+  print(paste0("Semilla: ", semilla))
   # entreno el modelo
   modelo <- lgb.train(
     data = dtrain,

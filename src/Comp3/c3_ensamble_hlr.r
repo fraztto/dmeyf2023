@@ -81,7 +81,7 @@ setwd("~/buckets/b1")
 
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
-
+dataset <- dataset[order(numero_de_cliente, foto_mes), ]
 
 print("Haciendo transformaciones")
 # Catastrophe Analysis  -------------------------------------------------------

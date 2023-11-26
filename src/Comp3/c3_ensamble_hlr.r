@@ -231,7 +231,7 @@ for (semilla in PARAM$finalmodel$semillas){
   predicciones[, (col_name) := prediccion]
 
   filename <- paste0("predicciones_modelo_", semilla, ".csv.gz")
-  fwrite(predicciones[, list("numero_de_cliente", "foto_mes", "col_name")],
+  fwrite(predicciones[, mget(c("numero_de_cliente", "foto_mes", "col_name"))],
     file = filename,
     sep = "\t"
   )

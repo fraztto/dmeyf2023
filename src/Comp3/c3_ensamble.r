@@ -107,33 +107,6 @@ dataset[, catm_trx_sum_ccomisiones_otras := catm_trx + ccomisiones_otras]
 dataset[, catm_trx_sum_cproductos := catm_trx + cproductos]
 dataset[, ctarjeta_debito_transacciones_sum_cproductos := ctarjeta_debito_transacciones + cproductos]
 dataset[, ctrx_quarter_sum_mpagomiscuentas := ctrx_quarter + mpagomiscuentas]
-dataset[, visa_mlimitecompra_multiply_ctrx_quarter := Visa_mlimitecompraprint("Haciendo transformaciones")
-# Catastrophe Analysis  -------------------------------------------------------
-# deben ir cosas de este estilo
-#   dataset[foto_mes == 202006, active_quarter := NA]
-dataset[foto_mes %in% c(201905, 201910, 202006), c("mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen", "ccomisiones_otras", "mcomisiones_otras") := NA]
-dataset[foto_mes %in% c(201904), c("mttarjeta_visa_debitos_automaticos") := NA]
-dataset[foto_mes %in% c(201901, 201902, 201903, 201904, 201905), c("ctransferencias_recibidas", "mtransferencias_recibidas") := NA]
-dataset[foto_mes %in% c(201910), c("chomebanking_transacciones") := NA]
-dataset[foto_mes == 202006, names(dataset) := NA]
-dataset[, tmobile_app := NA]
-
-# Data Drifting
-
-# Usamos rank para las monetarias
-cols_monetarias <- c("mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mcuentas_saldo","mautoservicio","mtarjeta_visa_consumo","mtarjeta_master_consumo","mprestamos_personales","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo","Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo")
-cols_monetarias_rank <- paste0("rank_", cols_monetarias)
-dataset[, (cols_monetarias_rank) := lapply(.SD, function(x) frankv(x, na.last = TRUE)), by = foto_mes, .SDcols = cols_monetarias]
-
-
-# Feature Engineering Historico  ----------------------------------------------
-
-# Features a mano
-dataset[, ccomisiones_otras_sum_cpayroll_trx := ccomisiones_otras + cpayroll_trx]
-dataset[, catm_trx_sum_ccomisiones_otras := catm_trx + ccomisiones_otras]
-dataset[, catm_trx_sum_cproductos := catm_trx + cproductos]
-dataset[, ctarjeta_debito_transacciones_sum_cproductos := ctarjeta_debito_transacciones + cproductos]
-dataset[, ctrx_quarter_sum_mpagomiscuentas := ctrx_quarter + mpagomiscuentas]
 dataset[, visa_mlimitecompra_multiply_ctrx_quarter := Visa_mlimitecompra * ctrx_quarter]
 dataset[, cextraccion_autoservicio_sum_ccomisiones_otras := cextraccion_autoservicio + ccomisiones_otras]
 dataset[, ctrx_quarter_sum_mplazo_fijo_dolares := ctrx_quarter + mplazo_fijo_dolares]

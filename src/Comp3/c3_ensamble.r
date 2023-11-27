@@ -141,8 +141,6 @@ for (j in numeric_cols) {
   dataset[, (anscols) := get(j) - get(paste0("lag_1_", j))]
   dataset[, (paste0("avg3_", j)) := rowMeans(.SD, na.rm = TRUE), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j))]
   dataset[, (paste0("avg6_", j)) := rowMeans(.SD, na.rm = TRUE), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j), paste0("lag_3_", j), paste0("lag_4_", j), paste0("lag_5_", j) )]
-  dataset[, (paste0("slope3_", j)) := lapply(.SD, function(x) lm(x ~ 1:length(x))$coefficients[2]), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j))]
-  dataset[, (paste0("slope6_", j)) := lapply(.SD, function(x) lm(x ~ 1:length(x))$coefficients[2]), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j), paste0("lag_3_", j), paste0("lag_4_", j), paste0("lag_5_", j) )]
 }
 
 print("Termine transformaciones")

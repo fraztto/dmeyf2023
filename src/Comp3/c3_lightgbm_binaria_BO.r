@@ -337,7 +337,7 @@ numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes
 
 print("Add lags")
 # iterar todos los lags hasta 6
-for (i in c(1:3)) {
+for (i in c(1:6)) {
   # lag
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")

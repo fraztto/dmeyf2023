@@ -41,8 +41,7 @@ PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 PARAM$input$testing <- c(202107)
 PARAM$input$validation <- c(202106)
 PARAM$input$training <- c(202105, 202104, 202103, 202102, 202101, 202012, 202011, 202010,
-                          202002, 202001, 201912, 201911, 201910, 201909, 201908, 201907,
-                          201906, 201905, 201904, 201903, 201902, 201901)
+                          202002, 202001, 201912, 201911, 201910, 201909, 201908, 201907)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
 PARAM$trainingstrategy$undersampling <- 0.1
@@ -357,8 +356,8 @@ dataset[, (paste0("avg6_", numeric_cols)) := lapply(.SD, function(x) {
 }), by = numero_de_cliente, .SDcols = numeric_cols]
 
 dataset[, (paste0("avg3_", numeric_cols)) := lapply(.SD, function(x) {
-  ma6 <- frollmean(x, n = 6, fill = NA, align = "right")
-  return(ma6)
+  ma3 <- frollmean(x, n = 3, fill = NA, align = "right")
+  return(ma3)
 }), by = numero_de_cliente, .SDcols = numeric_cols]
 
 dataset[, (paste0("slope_", numeric_cols)) := lapply(.SD, function(x) {

@@ -217,6 +217,12 @@ for (semilla in PARAM$finalmodel$semillas){
 
   col_name <- paste0("model_", semilla)
   predicciones[, (col_name) := prediccion]
+
+  filename <- paste0("predicciones_modelo_", semilla, ".csv.gz")
+  fwrite(predicciones[, mget(c("numero_de_cliente", "foto_mes", col_name))],
+    file = filename,
+    sep = "\t"
+  )
 }
 
 # grabo las probabilidad de los modelos

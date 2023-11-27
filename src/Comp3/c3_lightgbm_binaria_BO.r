@@ -350,8 +350,8 @@ for (i in c(1,2,3,6)) {
   }
 }
 
-# dataset[, (paste0("avg6_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag") + shift(.SD, 3, 0, "lag") + shift(.SD, 4, 0, "lag") + shift(.SD, 5, 0, "lag"))/6, .SDcols = numeric_cols, by = numero_de_cliente]
-# dataset[, (paste0("avg3_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag"))/3, .SDcols = numeric_cols, by = numero_de_cliente]
+dataset[, (paste0("avg6_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag") + shift(.SD, 3, 0, "lag") + shift(.SD, 4, 0, "lag") + shift(.SD, 5, 0, "lag"))/6, .SDcols = numeric_cols, by = numero_de_cliente]
+dataset[, (paste0("avg3_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag"))/3, .SDcols = numeric_cols, by = numero_de_cliente]
 
 print("Termine transformaciones")
 

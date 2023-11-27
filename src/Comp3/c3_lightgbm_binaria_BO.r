@@ -32,7 +32,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO-C3-50IT"
+PARAM$experimento <- "BO-C3-50IT-V2"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
@@ -41,11 +41,11 @@ PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 PARAM$input$testing <- c(202107)
 PARAM$input$validation <- c(202106)
 PARAM$input$training <- c(202105, 202104, 202103, 202102, 202101, 202012, 202011, 202010,
-                          202009, 202008, 202007, 202006, 202005, 202004, 202003, 202002,
-                          202001, 201912)
+                          202002, 202001, 201912, 201911, 201910, 201909, 201908, 201907,
+                          201906, 201905, 201904, 201903, 201902, 201901)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 0.5
+PARAM$trainingstrategy$undersampling <- 0.1
 PARAM$trainingstrategy$semilla_azar <- 501593 # Aqui poner su  primer  semilla
 
 PARAM$hyperparametertuning$POS_ganancia <- 273000
@@ -300,6 +300,7 @@ dataset[foto_mes %in% c(201904), c("mttarjeta_visa_debitos_automaticos") := NA]
 dataset[foto_mes %in% c(201901, 201902, 201903, 201904, 201905), c("ctransferencias_recibidas", "mtransferencias_recibidas") := NA]
 dataset[foto_mes %in% c(201910), c("chomebanking_transacciones") := NA]
 dataset[foto_mes == 202006, names(dataset) := NA]
+dataset[, tmobile_app := NA]
 
 # Data Drifting
 
@@ -310,41 +311,6 @@ dataset[, (cols_monetarias_rank) := lapply(.SD, function(x) frankv(x, na.last = 
 
 
 # Feature Engineering Historico  ----------------------------------------------
-#   aqui deben calcularse los  lags y  lag_delta
-cols <- names(dataset)
-cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
-
-numeric_cols <- names(Filter(is.numeric, dataset))
-numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
-
-# iterar todos los lags hasta 6
-for (i in 1:6) {
-  # lag
-  # add name to the columns with the lag number
-  anscols <- paste("lag", i, cols, sep="_")
-
-  dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols]
-
-  # lag_delta
-  if (i == 1) {
-    anscols <- paste("lag_delta", i, numeric_cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols]
-  }
-  else if (i < 6) {
-    lagcols = paste("lag", i - 1, numeric_cols, sep="_")
-    lag1cols = paste("lag", i, numeric_cols, sep="_")
-    anscols = paste("lag_delta", i, numeric_cols, sep="_")
-
-    dataset[, (anscols) := .SD - mget(lag1cols) , .SDcols=lagcols]
-  }
-}
-
-for(col in numeric_cols) {
-  lags <- 1:6
-  lag_cols <- paste("lag", lags, col, sep="_")
-  mean_col <- paste("mean", col, sep="_")
-  dataset[, (mean_col) := rowMeans(.SD, na.rm = TRUE), .SDcols=lag_cols]
-}
 
 # Features a mano
 dataset[, ccomisiones_otras_sum_cpayroll_trx := ccomisiones_otras + cpayroll_trx]
@@ -362,6 +328,48 @@ dataset[, master_fvencimiento_ratio_ctrx_quarter := Master_Fvencimiento / ctrx_q
 dataset[, matm_sum_ccomisiones_otras := matm + ccomisiones_otras]
 dataset[, master_fechaalta_ratio_ctrx_quarter := Master_fechaalta / ctrx_quarter]
 
+
+#   aqui deben calcularse los  lags y  lag_delta
+cols <- names(dataset)
+cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+
+numeric_cols <- names(Filter(is.numeric, dataset))
+numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
+
+# iterar todos los lags hasta 6
+for (i in c(1,2,3,6)) {
+  # lag
+  # add name to the columns with the lag number
+  anscols <- paste("lag", i, cols, sep="_")
+
+  dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols]
+
+  # lag_delta
+  if (i == 1) {
+    anscols <- paste("lag_delta", i, numeric_cols, sep="_")
+    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols]
+  }
+}
+
+dataset[, (paste0("avg6_", numeric_cols)) := lapply(.SD, function(x) {
+  ma6 <- frollmean(x, n = 6, fill = NA, align = "right")
+  return(ma6)
+}), by = numero_de_cliente, .SDcols = numeric_cols]
+
+dataset[, (paste0("avg3_", numeric_cols)) := lapply(.SD, function(x) {
+  ma6 <- frollmean(x, n = 6, fill = NA, align = "right")
+  return(ma6)
+}), by = numero_de_cliente, .SDcols = numeric_cols]
+
+dataset[, (paste0("slope_", numeric_cols)) := lapply(.SD, function(x) {
+  # use last 6 data points
+  x <- tail(x, 6)
+  fit <- lm(y ~ x, data = x)
+  fit$coefficients[1]
+}), by = numero_de_cliente, .SDcols = numeric_cols]
+
+
+
 print("Termine transformaciones")
 
 # ahora SI comienza la optimizacion Bayesiana
@@ -375,7 +383,6 @@ if (file.exists(klog)) {
   GLOBAL_iteracion <- nrow(tabla_log)
   GLOBAL_gananciamax <- tabla_log[, max(ganancia)]
 }
-
 
 
 # paso la clase a binaria que tome valores {0,1}  enteros

@@ -31,10 +31,6 @@ dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE)
 # Establezco el Working Directory DEL EXPERIMENTO
 setwd(paste0("./exp/", PARAM$experimento, "/"))
 
-# en estos archivos quedan los resultados
-kbayesiana <- paste0(PARAM$experimento, ".RDATA")
-klog <- paste0(PARAM$experimento, ".txt")
-
 dataset <- dataset[order(numero_de_cliente, foto_mes), ]
 
 print("Haciendo transformaciones")
@@ -83,22 +79,20 @@ numeric_cols <- names(Filter(is.numeric, dataset))
 numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
 
 # iterar todos los lags hasta 6
-for (i in c(1,2,3,6)) {
+for (i in c(1:6)) {
   # lag
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")
 
   dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols, by = numero_de_cliente]
-
-  # lag_delta
-  if (i == 1) {
-    anscols <- paste("lag_delta", i, numeric_cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols, by = numero_de_cliente]
-  }
 }
 
-dataset[, (paste0("avg6_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag") + shift(.SD, 3, 0, "lag") + shift(.SD, 4, 0, "lag") + shift(.SD, 5, 0, "lag"))/6, .SDcols = numeric_cols, by = numero_de_cliente]
-dataset[, (paste0("avg3_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag"))/3, .SDcols = numeric_cols, by = numero_de_cliente]
+for (j in numeric_cols) {
+  anscols <- paste("lag_delta", 1, j, sep="_")
+  dataset[, (anscols) := get(j) - get(paste0("lag_1_", j))]
+  dataset[, (paste0("avg6_", j)) := ( get(j) + get(paste("lag_1_", j)) + get(paste("lag_2_", j)) + get(paste("lag_3_", j)) + get(paste("lag_4_", j)) + get(paste("lag_5_", j)) )/6, .SDcols = numeric_cols, by = numero_de_cliente]
+  dataset[, (paste0("avg3_", j)) := (get(j) + get(paste("lag_1_", j)) + get(paste("lag_2_", j)))/3, .SDcols = numeric_cols, by = numero_de_cliente]
+}
 
 print("Termine transformaciones")
 

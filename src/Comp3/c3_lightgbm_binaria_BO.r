@@ -337,7 +337,7 @@ numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes
 
 print("Add lags")
 # iterar todos los lags hasta 6
-for (i in c(1:6)) {
+for (i in c(1:3)) {
   # lag
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")
@@ -349,8 +349,8 @@ print("Add lag_delta, avgs")
 for (j in numeric_cols) {
   anscols <- paste("lag_delta", 1, j, sep="_")
   dataset[, (anscols) := get(j) - get(paste0("lag_1_", j))]
-  dataset[, (paste0("avg6_", j)) := ( get(j) + get(paste0("lag_1_", j)) + get(paste0("lag_2_", j)) + get(paste0("lag_3_", j)) + get(paste0("lag_4_", j)) + get(paste0("lag_5_", j)) )/6, .SDcols = numeric_cols, by = numero_de_cliente]
-  dataset[, (paste0("avg3_", j)) := (get(j) + get(paste0("lag_1_", j)) + get(paste0("lag_2_", j)))/3, .SDcols = numeric_cols, by = numero_de_cliente]
+  dataset[, (paste0("avg3_", j)) := rowMeans(.SD, na.rm = TRUE), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j))]
+  dataset[, (paste0("avg6_", j)) := rowMeans(.SD, na.rm = TRUE), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j), paste0("lag_3_", j), paste0("lag_4_", j), paste0("lag_5_", j) )]
 }
 
 print("Termine transformaciones")

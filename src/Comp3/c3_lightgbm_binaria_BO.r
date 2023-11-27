@@ -341,33 +341,17 @@ for (i in c(1,2,3,6)) {
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")
 
-  dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols]
+  dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols, by = numero_de_cliente]
 
   # lag_delta
   if (i == 1) {
     anscols <- paste("lag_delta", i, numeric_cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols]
+    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols, by = numero_de_cliente]
   }
 }
 
-dataset[, (paste0("avg6_", numeric_cols)) := lapply(.SD, function(x) {
-  ma6 <- frollmean(x, n = 6, fill = NA, align = "right")
-  return(ma6)
-}), by = numero_de_cliente, .SDcols = numeric_cols]
-
-dataset[, (paste0("avg3_", numeric_cols)) := lapply(.SD, function(x) {
-  ma3 <- frollmean(x, n = 3, fill = NA, align = "right")
-  return(ma3)
-}), by = numero_de_cliente, .SDcols = numeric_cols]
-
-dataset[, (paste0("slope_", numeric_cols)) := lapply(.SD, function(x) {
-  # use last 6 data points
-  x <- tail(x, 6)
-  fit <- lm(y ~ x, data = x)
-  fit$coefficients[1]
-}), by = numero_de_cliente, .SDcols = numeric_cols]
-
-
+dataset[, (paste0("avg6_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag") + shift(.SD, 3, 0, "lag") + shift(.SD, 4, 0, "lag") + shift(.SD, 5, 0, "lag"))/6, .SDcols = numeric_cols, by = numero_de_cliente]
+dataset[, (paste0("avg3_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag"))/3, .SDcols = numeric_cols, by = numero_de_cliente]
 
 print("Termine transformaciones")
 

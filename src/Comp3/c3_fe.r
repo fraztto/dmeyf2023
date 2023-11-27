@@ -90,8 +90,8 @@ for (i in c(1:6)) {
 for (j in numeric_cols) {
   anscols <- paste("lag_delta", 1, j, sep="_")
   dataset[, (anscols) := get(j) - get(paste0("lag_1_", j))]
-  dataset[, (paste0("avg6_", j)) := ( get(j) + get(paste("lag_1_", j)) + get(paste("lag_2_", j)) + get(paste("lag_3_", j)) + get(paste("lag_4_", j)) + get(paste("lag_5_", j)) )/6, .SDcols = numeric_cols, by = numero_de_cliente]
-  dataset[, (paste0("avg3_", j)) := (get(j) + get(paste("lag_1_", j)) + get(paste("lag_2_", j)))/3, .SDcols = numeric_cols, by = numero_de_cliente]
+  dataset[, (paste0("avg6_", j)) := ( get(j) + get(paste0("lag_1_", j)) + get(paste0("lag_2_", j)) + get(paste0("lag_3_", j)) + get(paste0("lag_4_", j)) + get(paste0("lag_5_", j)) )/6, .SDcols = numeric_cols, by = numero_de_cliente]
+  dataset[, (paste0("avg3_", j)) := (get(j) + get(paste0("lag_1_", j)) + get(paste0("lag_2_", j)))/3, .SDcols = numeric_cols, by = numero_de_cliente]
 }
 
 print("Termine transformaciones")

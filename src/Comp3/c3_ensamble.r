@@ -14,13 +14,13 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "BO-C3-20S-50IT-V2-ITXX"
+PARAM$experimento <- "BO-C3-20S-50IT-V2-IT39"
 
 PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
 
 # meses donde se entrena el modelo
 PARAM$input$training <- c(202107, 202106, 202105, 202104, 202103, 202102, 202101, 202012,
-                          202011, 202002, 202001, 201912, 201911, 201910, 201909, 201908)
+                          202011, 202010, 202002, 202001, 201912, 201911, 201910, 201909)
 PARAM$input$future <- c(202109) # meses donde se aplica el modelo
 
 PARAM$finalmodel$semilla <- 102191
@@ -30,11 +30,11 @@ PARAM$finalmodel$semillas <- c( 100003, 100019, 100043, 100049, 100057, 100069,
                                 100267, 100271)
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 659
-PARAM$finalmodel$optim$learning_rate <- 0.044613134
-PARAM$finalmodel$optim$feature_fraction <- 0.710582141
-PARAM$finalmodel$optim$min_data_in_leaf <- 17593
-PARAM$finalmodel$optim$num_leaves <- 360
+PARAM$finalmodel$optim$num_iterations <- 1025
+PARAM$finalmodel$optim$learning_rate <- 0.031725083
+PARAM$finalmodel$optim$feature_fraction <- 0.736456953
+PARAM$finalmodel$optim$min_data_in_leaf <- 3300
+PARAM$finalmodel$optim$num_leaves <- 131
 
 
 # Hiperparametros FIJOS de  lightgbm
@@ -107,6 +107,33 @@ dataset[, catm_trx_sum_ccomisiones_otras := catm_trx + ccomisiones_otras]
 dataset[, catm_trx_sum_cproductos := catm_trx + cproductos]
 dataset[, ctarjeta_debito_transacciones_sum_cproductos := ctarjeta_debito_transacciones + cproductos]
 dataset[, ctrx_quarter_sum_mpagomiscuentas := ctrx_quarter + mpagomiscuentas]
+dataset[, visa_mlimitecompra_multiply_ctrx_quarter := Visa_mlimitecompraprint("Haciendo transformaciones")
+# Catastrophe Analysis  -------------------------------------------------------
+# deben ir cosas de este estilo
+#   dataset[foto_mes == 202006, active_quarter := NA]
+dataset[foto_mes %in% c(201905, 201910, 202006), c("mrentabilidad", "mrentabilidad_annual", "mcomisiones", "mactivos_margen", "mpasivos_margen", "ccomisiones_otras", "mcomisiones_otras") := NA]
+dataset[foto_mes %in% c(201904), c("mttarjeta_visa_debitos_automaticos") := NA]
+dataset[foto_mes %in% c(201901, 201902, 201903, 201904, 201905), c("ctransferencias_recibidas", "mtransferencias_recibidas") := NA]
+dataset[foto_mes %in% c(201910), c("chomebanking_transacciones") := NA]
+dataset[foto_mes == 202006, names(dataset) := NA]
+dataset[, tmobile_app := NA]
+
+# Data Drifting
+
+# Usamos rank para las monetarias
+cols_monetarias <- c("mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mcuentas_saldo","mautoservicio","mtarjeta_visa_consumo","mtarjeta_master_consumo","mprestamos_personales","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo","Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo")
+cols_monetarias_rank <- paste0("rank_", cols_monetarias)
+dataset[, (cols_monetarias_rank) := lapply(.SD, function(x) frankv(x, na.last = TRUE)), by = foto_mes, .SDcols = cols_monetarias]
+
+
+# Feature Engineering Historico  ----------------------------------------------
+
+# Features a mano
+dataset[, ccomisiones_otras_sum_cpayroll_trx := ccomisiones_otras + cpayroll_trx]
+dataset[, catm_trx_sum_ccomisiones_otras := catm_trx + ccomisiones_otras]
+dataset[, catm_trx_sum_cproductos := catm_trx + cproductos]
+dataset[, ctarjeta_debito_transacciones_sum_cproductos := ctarjeta_debito_transacciones + cproductos]
+dataset[, ctrx_quarter_sum_mpagomiscuentas := ctrx_quarter + mpagomiscuentas]
 dataset[, visa_mlimitecompra_multiply_ctrx_quarter := Visa_mlimitecompra * ctrx_quarter]
 dataset[, cextraccion_autoservicio_sum_ccomisiones_otras := cextraccion_autoservicio + ccomisiones_otras]
 dataset[, ctrx_quarter_sum_mplazo_fijo_dolares := ctrx_quarter + mplazo_fijo_dolares]
@@ -125,23 +152,25 @@ cols <- cols[!cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
 numeric_cols <- names(Filter(is.numeric, dataset))
 numeric_cols <- numeric_cols[!numeric_cols %in% c("numero_de_cliente", "foto_mes", "clase_ternaria")]
 
+print("Add lags")
 # iterar todos los lags hasta 6
-for (i in c(1,2,3,6)) {
+for (i in c(1:6)) {
   # lag
   # add name to the columns with the lag number
   anscols <- paste("lag", i, cols, sep="_")
 
   dataset[, (anscols) := shift(.SD, i, NA, "lag"), .SDcols=cols, by = numero_de_cliente]
-
-  # lag_delta
-  if (i == 1) {
-    anscols <- paste("lag_delta", i, numeric_cols, sep="_")
-    dataset[, (anscols) := .SD - shift(.SD, i, 0, "lag"), .SDcols=numeric_cols, by = numero_de_cliente]
-  }
 }
 
-dataset[, (paste0("avg6_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag") + shift(.SD, 3, 0, "lag") + shift(.SD, 4, 0, "lag") + shift(.SD, 5, 0, "lag"))/6, .SDcols = numeric_cols, by = numero_de_cliente]
-dataset[, (paste0("avg3_", numeric_cols)) := (.SD + shift(.SD, 1, 0, "lag") + shift(.SD, 2, 0, "lag"))/3, .SDcols = numeric_cols, by = numero_de_cliente]
+print("Add lag_delta, avgs")
+for (j in numeric_cols) {
+  anscols <- paste("lag_delta", 1, j, sep="_")
+  dataset[, (anscols) := get(j) - get(paste0("lag_1_", j))]
+  dataset[, (paste0("avg3_", j)) := rowMeans(.SD, na.rm = TRUE), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j))]
+  dataset[, (paste0("avg6_", j)) := rowMeans(.SD, na.rm = TRUE), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j), paste0("lag_3_", j), paste0("lag_4_", j), paste0("lag_5_", j) )]
+  dataset[, (paste0("slope3_", j)) := lapply(.SD, function(x) lm(x ~ 1:length(x))$coefficients[2]), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j))]
+  dataset[, (paste0("slope6_", j)) := lapply(.SD, function(x) lm(x ~ 1:length(x))$coefficients[2]), .SDcols = c(j, paste0("lag_1_", j), paste0("lag_2_", j), paste0("lag_3_", j), paste0("lag_4_", j), paste0("lag_5_", j) )]
+}
 
 print("Termine transformaciones")
 

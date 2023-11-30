@@ -1,9 +1,9 @@
 library("data.table")
 
 PARAM <- list()
-PARAM$experimento_input <- "BO-C3-20S-50IT-1-IT45"
+PARAM$experimento_input <- "BO-C3-20S-50IT-V2-IT39"
 PARAM$experimento_input_ds <- "predicciones.csv.gz"
-PARAM$experimento_output <- "BO-C3-20S-50IT-1-IT45-ensamble"
+PARAM$experimento_output <- "BO-C3-20S-50IT-V2-IT39-ensamble"
 
 base_path <- "~/buckets/b1"
 setwd(base_path)
